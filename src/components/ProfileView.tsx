@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Camera, MapPin, Sparkles, Loader2, AlertCircle, Edit3, Plus, Trash, Check, X, Award, Briefcase, GraduationCap } from 'lucide-react';
+import { Camera, MapPin, Loader2, AlertCircle, Edit3, Plus, Trash, Check, X, Award, Briefcase, GraduationCap } from 'lucide-react';
+import AiIcon from './AiIcon';
 import { Profile, Experience, Education } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -7,9 +8,10 @@ interface ProfileViewProps {
   profile: Profile;
   onUpdateProfile: (updated: Profile) => void;
   connectionsCount: number;
+  onLogout?: () => void;
 }
 
-export default function ProfileView({ profile, onUpdateProfile, connectionsCount }: ProfileViewProps) {
+export default function ProfileView({ profile, onUpdateProfile, connectionsCount, onLogout }: ProfileViewProps) {
   // Editing states
   const [isEditingHeader, setIsEditingHeader] = useState(false);
   const [isEditingAbout, setIsEditingAbout] = useState(false);
@@ -189,21 +191,21 @@ export default function ProfileView({ profile, onUpdateProfile, connectionsCount
                   type="text" 
                   value={headerForm.name} 
                   onChange={(e) => setHeaderForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="bg-[#EDF3F8] border border-transparent focus:bg-white focus:ring-2 focus:ring-[#0a66c2] rounded-md text-xs p-2.5 font-bold outline-none"
+                  className="w-full liquid-glass-input rounded-md text-xs p-2.5 font-bold outline-none focus:ring-1 focus:ring-indigo-500"
                   placeholder="Full name"
                 />
                 <input 
                   type="text" 
                   value={headerForm.headline} 
                   onChange={(e) => setHeaderForm(prev => ({ ...prev, headline: e.target.value }))}
-                  className="bg-[#EDF3F8] border border-transparent focus:bg-white focus:ring-2 focus:ring-[#0a66c2] rounded-md text-xs p-2.5 outline-none font-medium"
+                  className="w-full liquid-glass-input rounded-md text-xs p-2.5 outline-none font-medium focus:ring-1 focus:ring-indigo-500"
                   placeholder="Headline"
                 />
                 <input 
                   type="text" 
                   value={headerForm.location} 
                   onChange={(e) => setHeaderForm(prev => ({ ...prev, location: e.target.value }))}
-                  className="bg-[#EDF3F8] border border-transparent focus:bg-white focus:ring-2 focus:ring-[#0a66c2] rounded-md text-xs p-2.5 outline-none font-medium"
+                  className="w-full liquid-glass-input rounded-md text-xs p-2.5 outline-none font-medium focus:ring-1 focus:ring-indigo-500"
                   placeholder="Location"
                 />
                 <div className="flex gap-2 mt-1.5 justify-center sm:justify-start">
@@ -261,11 +263,19 @@ export default function ProfileView({ profile, onUpdateProfile, connectionsCount
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <AiIcon className="w-3.5 h-3.5" />
                   <span>Optimize with AI Coach</span>
                 </>
               )}
             </button>
+            {onLogout && (
+              <button 
+                onClick={onLogout}
+                className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20 hover:border-red-600 font-bold text-[10px] uppercase tracking-wider py-2 px-5 rounded-full flex items-center justify-center gap-1.5 transition-all w-full sm:w-auto cursor-pointer"
+              >
+                Log Out
+              </button>
+            )}
           </div>
         </div>
 
@@ -290,7 +300,7 @@ export default function ProfileView({ profile, onUpdateProfile, connectionsCount
               <textarea 
                 value={aboutForm}
                 onChange={(e) => setAboutForm(e.target.value)}
-                className="w-full min-h-[120px] bg-[#EDF3F8] border border-transparent focus:bg-white focus:ring-2 focus:ring-[#0a66c2] rounded-md text-xs p-2.5 outline-none font-medium"
+                className="w-full min-h-[120px] liquid-glass-input rounded-md text-xs p-2.5 outline-none font-medium focus:ring-1 focus:ring-indigo-500"
               />
               <div className="flex gap-2">
                 <button 
@@ -586,16 +596,16 @@ export default function ProfileView({ profile, onUpdateProfile, connectionsCount
       {/* Right 1 Column: AI Career Coach Drawer/Feed panel */}
       <div className="md:col-span-1 bg-white border border-slate-200 rounded-xl p-4 shadow-sm h-fit flex flex-col gap-4">
         <div className="flex items-center gap-1.5 text-purple-700 font-extrabold text-[10px] uppercase tracking-widest border-b border-slate-100 pb-2.5">
-          <Sparkles className="w-4 h-4 text-[#7839ec]" />
+          <AiIcon className="w-4 h-4 text-[#7839ec]" />
           <span>AI Profile Coach</span>
         </div>
 
         {aiSuggestions ? (
           <div className="flex flex-col gap-4 text-xs">
             {aiSuggestions.headline && (
-              <div className="p-3 bg-[#f9f6ff] border border-[#8f58f7]/20 rounded-xl">
+              <div className="p-3 bg-purple-950/20 border border-purple-500/30 rounded-xl shadow-xs">
                 <div className="flex justify-between items-center mb-1.5">
-                  <h4 className="font-extrabold text-[#6d25e4] text-[10px] uppercase tracking-wider">Headline Tip</h4>
+                  <h4 className="font-extrabold text-purple-300 text-[10px] uppercase tracking-wider">Headline Tip</h4>
                   <button 
                     onClick={handleApplyAiHeadline}
                     className="text-[9px] font-bold uppercase tracking-wider bg-[#6d25e4] text-white py-1 px-3 rounded-full hover:bg-[#5217b7] cursor-pointer"
@@ -608,9 +618,9 @@ export default function ProfileView({ profile, onUpdateProfile, connectionsCount
             )}
 
             {aiSuggestions.about && (
-              <div className="p-3 bg-[#f9f6ff] border border-[#8f58f7]/20 rounded-xl">
+              <div className="p-3 bg-purple-950/20 border border-purple-500/30 rounded-xl shadow-xs">
                 <div className="flex justify-between items-center mb-1.5">
-                  <h4 className="font-extrabold text-[#6d25e4] text-[10px] uppercase tracking-wider">About Tip</h4>
+                  <h4 className="font-extrabold text-purple-300 text-[10px] uppercase tracking-wider">About Tip</h4>
                   <button 
                     onClick={handleApplyAiAbout}
                     className="text-[9px] font-bold uppercase tracking-wider bg-[#6d25e4] text-white py-1 px-3 rounded-full hover:bg-[#5217b7] cursor-pointer"
@@ -647,12 +657,12 @@ export default function ProfileView({ profile, onUpdateProfile, connectionsCount
         ) : (
           <div className="flex flex-col gap-3 text-xs text-slate-500 font-medium">
             <p className="leading-relaxed">
-              Analyze your profile items using Gemini AI to obtain dynamic custom insights for your industry keyword index and cover matches.
+              Analyze your profile items using internAi to obtain dynamic custom insights for your industry keyword index and cover matches.
             </p>
             <button 
               onClick={handleRequestAiOptimization}
               disabled={isAiLoading}
-              className="w-full text-center py-2.5 bg-[#f9f6ff] border border-[#8f58f7]/30 hover:border-[#8f58f7] rounded-md text-[10px] font-extrabold uppercase tracking-wider text-[#6d25e4] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full text-center py-2.5 bg-purple-950/20 border border-[#8f58f7]/30 hover:border-[#8f58f7] rounded-md text-[10px] font-extrabold uppercase tracking-wider text-purple-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {isAiLoading ? (
                 <>
@@ -661,7 +671,7 @@ export default function ProfileView({ profile, onUpdateProfile, connectionsCount
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3 text-[#7839ec]" />
+                  <AiIcon className="w-3 text-[#7839ec]" />
                   <span>Scan with AI Coach</span>
                 </>
               )}

@@ -3,14 +3,16 @@ import { initialProfile, initialPosts, initialJobs, initialConnections, initialC
 import { Profile, Post, Job, Connection, Conversation, Notification, Comment, Message } from './types';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-import Feed from './components/Feed';
-import NetworkView from './components/NetworkView';
+import Dashboard from './components/Dashboard';
 import JobsView from './components/JobsView';
-import MessagingView from './components/MessagingView';
 import NotificationsView from './components/NotificationsView';
 import ProfileView from './components/ProfileView';
+import LandingPage from './components/LandingPage';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, CheckCircle2, AlertCircle, X, Bell, Building2, ChevronRight } from 'lucide-react';
+import { CheckCircle2, AlertCircle, X, Bell, Building2, ChevronRight, Loader2 } from 'lucide-react';
+import { auth, db } from './firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface Toast {
   id: string;
@@ -19,12 +21,78 @@ interface Toast {
 }
 
 export default function App() {
+  // Authentication status
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem('intern_is_logged_in') === 'true';
+  });
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+
   // Navigation active view
   const [activeView, setActiveView] = useState<string>('feed');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Floating Toasts state
   const [toasts, setToasts] = useState<Toast[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setProfile(docSnap.data() as Profile);
+          } else {
+            // Profile doesn't exist, create a default profile using user auth info
+            const defaultProfile: Profile = {
+              name: user.displayName || user.email?.split('@')[0] || 'User',
+              headline: 'AI Professional / Student',
+              avatar: user.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80',
+              banner: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
+              location: 'San Francisco, CA',
+              connectionsCount: 0,
+              about: 'Welcome to your career workspace profile! Fill out details or ask the AI Coach to optimize it.',
+              skills: ['React', 'JavaScript', 'TypeScript'],
+              experience: [],
+              education: []
+            };
+            await setDoc(docRef, defaultProfile);
+            setProfile(defaultProfile);
+          }
+          setIsLoggedIn(true);
+          localStorage.setItem('intern_is_logged_in', 'true');
+        } catch (error) {
+          console.error("Firestore user fetch/create error:", error);
+        }
+      } else {
+        setIsLoggedIn(false);
+        localStorage.removeItem('intern_is_logged_in');
+      }
+      setIsAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = (registeredData?: any) => {
+    setIsLoggedIn(true);
+    localStorage.setItem('intern_is_logged_in', 'true');
+    if (registeredData) {
+      addToast(`Welcome to internAi, ${registeredData.name}!`);
+    } else {
+      addToast("Welcome back to internAi!");
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsLoggedIn(false);
+      localStorage.removeItem('intern_is_logged_in');
+      addToast("Logged out successfully.", "info");
+    } catch (error) {
+      addToast("Failed to log out. Please try again.", "info");
+    }
+  };
 
   // Persistent States
   const [profile, setProfile] = useState<Profile>(() => {
@@ -66,6 +134,17 @@ export default function App() {
   // Sync state to local storage
   useEffect(() => {
     localStorage.setItem('ln_profile', JSON.stringify(profile));
+    const user = auth.currentUser;
+    if (user) {
+      const syncProfile = async () => {
+        try {
+          await setDoc(doc(db, 'users', user.uid), profile);
+        } catch (error) {
+          console.error("Failed to sync profile to Firestore:", error);
+        }
+      };
+      syncProfile();
+    }
   }, [profile]);
 
   useEffect(() => {
@@ -324,8 +403,50 @@ export default function App() {
   const unreadMessagesCount = conversations.filter(c => c.unread).length;
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
 
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4 text-slate-200" id="ln-app-auth-loading">
+        <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading your profile session...</span>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <>
+        <LandingPage onLogin={handleLogin} />
+        {/* Floating toast notification bubbles container */}
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+          <AnimatePresence>
+            {toasts.map((toast) => (
+              <motion.div
+                key={toast.id}
+                initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 50, scale: 0.9 }}
+                className="bg-slate-950 border border-slate-800 text-white rounded-xl p-3.5 flex items-center justify-between gap-3 shadow-xl pointer-events-auto min-w-[280px]"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-100">{toast.message}</span>
+                </div>
+                <button 
+                  onClick={() => removeToast(toast.id)}
+                  className="text-slate-400 hover:text-white p-0.5 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#F0F6FF] relative overflow-hidden flex flex-col font-sans" id="ln-app-root">
+    <div className="min-h-screen bg-[#020617] bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.18),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(129,140,248,0.2),_transparent_36%)] text-slate-100 relative overflow-x-clip flex flex-col font-sans" id="ln-app-root">
       {/* Decorative Floating Fluid Liquid Glass Blobs */}
       <div className="absolute top-[-10%] left-[5%] w-[45rem] h-[45rem] rounded-full bg-gradient-to-tr from-[#60a5fa]/25 to-[#c084fc]/15 blur-3xl pointer-events-none animate-fluid-one z-0" />
       <div className="absolute bottom-[10%] right-[-5%] w-[50rem] h-[50rem] rounded-full bg-gradient-to-br from-[#818cf8]/20 to-[#f472b6]/10 blur-3xl pointer-events-none animate-fluid-two z-0" />
@@ -337,14 +458,12 @@ export default function App() {
         setActiveView={setActiveView}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        unreadMessagesCount={unreadMessagesCount}
         unreadNotificationsCount={unreadNotificationsCount}
-        connectionsCount={connections.filter(c => c.status === 'pending_received').length}
         profile={profile}
       />
 
       {/* Main Body Layout */}
-      <main className="flex-1 max-w-[95%] xl:max-w-[1400px] 2xl:max-w-[1600px] w-full mx-auto px-4 py-6 relative z-10 transition-all duration-300">
+      <main className="flex-1 pt-20 max-w-[95%] xl:max-w-[1400px] 2xl:max-w-[1600px] w-full mx-auto px-4 py-6 relative z-10 transition-all duration-300">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeView}
@@ -358,16 +477,20 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start" id="ln-feed-view">
                 {/* Left: Snap profile & Communities summary */}
                 <div className="md:col-span-1">
-                  <Sidebar 
-                    profile={profile} 
-                    onViewProfile={() => setActiveView('profile')}
-                    connectionsCount={activeConnectionsCount}
-                  />
+                  <div className="sticky top-24 self-start h-[calc(100vh-6.5rem)]">
+                    <div className="h-full flex flex-col">
+                      <Sidebar 
+                        profile={profile} 
+                        onViewProfile={() => setActiveView('profile')}
+                        connectionsCount={activeConnectionsCount}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Middle: Interactive Post Creation Feed lists */}
                 <div className="md:col-span-2">
-                  <Feed
+                  <Dashboard
                     posts={posts}
                     profile={profile}
                     onLikePost={handleLikePost}
@@ -382,13 +505,14 @@ export default function App() {
 
                 {/* Right: Company Recommendations Panel */}
                 <div className="hidden md:block md:col-span-1">
-                  <div className="liquid-glass-card rounded-2xl p-5 md:p-6 shadow-md sticky top-20 h-[calc(100vh-104px)] flex flex-col" id="ln-feed-company-recommendations">
-                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 mb-4 shrink-0">
-                      <Building2 className="w-5.5 h-5.5 text-indigo-600" />
-                      <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">Recommended Companies</h3>
-                    </div>
+                  <div className="sticky top-24 self-start h-[calc(100vh-6.5rem)]">
+                    <div className="liquid-glass-card rounded-2xl p-5 md:p-6 shadow-md h-full flex flex-col" id="ln-feed-company-recommendations">
+                      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-500/20 mb-4 shrink-0">
+                        <Building2 className="w-5.5 h-5.5 text-indigo-600" />
+                        <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">Recommended Companies</h3>
+                      </div>
 
-                    <div className="flex flex-col gap-5 overflow-y-auto pr-1 flex-1 no-scrollbar">
+                      <div className="flex flex-col gap-5 overflow-y-auto pr-1 flex-1 no-scrollbar">
                       {/* Recommendation 1: Google */}
                       <div className="group border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/20 p-4 rounded-xl transition-all duration-200">
                         <div className="flex items-start justify-between gap-3">
@@ -497,18 +621,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            )}
-
-            {activeView === 'network' && (
-              <div id="ln-network-view">
-                <NetworkView
-                  connections={connections}
-                  onAcceptInvitation={handleAcceptInvitation}
-                  onIgnoreInvitation={handleIgnoreInvitation}
-                  onSendConnectionRequest={handleSendConnectionRequest}
-                  searchQuery={searchQuery}
-                />
-              </div>
+            </div>
             )}
 
             {activeView === 'jobs' && (
@@ -517,19 +630,6 @@ export default function App() {
                   jobs={jobs}
                   profile={profile}
                   onApplyJob={handleApplyJob}
-                  searchQuery={searchQuery}
-                />
-              </div>
-            )}
-
-            {activeView === 'messaging' && (
-              <div id="ln-messaging-view">
-                <MessagingView
-                  conversations={conversations}
-                  activeConvId={activeConvId}
-                  setActiveConvId={setActiveConvId}
-                  onSendMessage={handleSendMessage}
-                  onReceiveAiReply={handleReceiveAiReply}
                   searchQuery={searchQuery}
                 />
               </div>
@@ -553,6 +653,7 @@ export default function App() {
                   profile={profile}
                   onUpdateProfile={setProfile}
                   connectionsCount={activeConnectionsCount}
+                  onLogout={handleLogout}
                 />
               </div>
             )}

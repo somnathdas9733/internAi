@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Image, ThumbsUp, MessageSquare, Share2, Send, Sparkles, X, Plus, AlertCircle, Loader2, Briefcase, FileUp, Trash2, TrendingUp, Eye, Users, Award, BarChart3 } from 'lucide-react';
+import { Image, ThumbsUp, MessageSquare, Share2, Send, X, Plus, AlertCircle, Loader2, Briefcase, FileUp, Trash2, TrendingUp, Eye, Users, Award, BarChart3 } from 'lucide-react';
+import AiIcon from './AiIcon';
 import { Post, Profile } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-interface FeedProps {
+interface DashboardProps {
   posts: Post[];
   profile: Profile;
   onLikePost: (postId: string) => void;
@@ -31,8 +32,8 @@ Projects:
     name: "Taylor_Chen_AI_Intern_CV.txt",
     text: `TAYLOR CHEN - AI RESEARCH & ENGINEERING INTERN
 Email: taylor.chen@example.com | LinkedIn: linkedin.com/in/taylorchen
-Summary: Graduate student specializing in Artificial Intelligence and Machine Learning. Practical project experience using LLMs, prompt engineering, Gemini API integrations, and Python-based deep learning workflows.
-Skills: Python, PyTorch, TensorFlow, LLM Integration, Gemini API, Prompt Engineering, Pandas, NumPy, SQL, Git.
+Summary: Graduate student specializing in Artificial Intelligence and Machine Learning. Practical project experience using LLMs, prompt engineering, internAi API integrations, and Python-based deep learning workflows.
+Skills: Python, PyTorch, TensorFlow, LLM Integration, internAi API, Prompt Engineering, Pandas, NumPy, SQL, Git.
 Projects:
 - Smart Document Summarizer: Built a server-side document summarization pipeline leveraging the @google/genai SDK to parse and categorize large research reports.
 - Computer Vision Classifier: Designed a PyTorch-based convolutional neural network for real-time object detection with 92% classification accuracy.`
@@ -50,7 +51,7 @@ Projects:
   }
 };
 
-export default function Feed({
+export default function Dashboard({
   posts,
   profile,
   onLikePost,
@@ -60,7 +61,7 @@ export default function Feed({
   onDeletePost,
   onDeleteAllPosts,
   searchQuery
-}: FeedProps) {
+}: DashboardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [postContent, setPostContent] = useState('');
   const [attachedImage, setAttachedImage] = useState('');
@@ -182,6 +183,22 @@ Ask me any questions in the chat bar below to tailor or rewrite your sections!`,
   };
 
   const processFile = (file: File) => {
+    const allowedExtensions = ['.pdf', '.docx', '.doc', '.txt', '.png', '.jpeg', '.jpg'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    
+    if (!allowedExtensions.includes(fileExtension) && !file.type.startsWith('image/')) {
+      setResumeError("Invalid file type. Only PDF, Word (.docx/.doc), Text (.txt), and Images (.png/.jpeg) are supported.");
+      setChatHistory(prev => [
+        ...prev,
+        {
+          sender: 'assistant',
+          text: `❌ **Upload failed:** "${file.name}" is not a supported file format. Please upload a PDF, Word (.docx/.doc), Text (.txt), or Image (.png/.jpeg) file.`,
+          timestamp: new Date()
+        }
+      ]);
+      return;
+    }
+
     setResumeFileName(file.name);
     setResumeError('');
 
@@ -277,7 +294,7 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
       if (!response.ok) throw new Error('Failed to fetch AI answer');
       const data = await response.json();
       
-      // Append Gemini's response to the chat history
+      // Append internAi's response to the chat history
       setChatHistory(prev => [
         ...prev,
         {
@@ -287,12 +304,12 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
         }
       ]);
     } catch (err) {
-      setResumeError('Failed to get answer from Gemini AI. Please check server or retry.');
+      setResumeError('Failed to get answer from internAi. Please check server or retry.');
       setChatHistory(prev => [
         ...prev,
         {
           sender: 'assistant',
-          text: "❌ I apologize, but I failed to get an answer from Gemini AI. Please check the backend connection and try again.",
+          text: "❌ I apologize, but I failed to get an answer from internAi. Please check the backend connection and try again.",
           timestamp: new Date()
         }
       ]);
@@ -412,12 +429,11 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
       <div className="liquid-glass-card rounded-2xl p-7 md:p-8 shadow-md flex flex-col gap-6 animate-fadeIn" id="ln-feed-resume-ai-widget">
           <div className="flex justify-between items-center pb-3 border-b border-white/20">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
-                <Sparkles className="w-6 h-6 text-indigo-600 animate-pulse" />
+              <div className="text-indigo-400">
+                <AiIcon className="w-7 h-7 text-indigo-400 animate-pulse" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">AI Consulting</h3>
-                <h2 className="text-base md:text-lg font-extrabold text-slate-800 mt-1">CV & Resume Consultant</h2>
+                <h2 className="text-base md:text-lg font-extrabold text-slate-100 mt-1">RESUME DASHBOARD</h2>
               </div>
             </div>
             <div className="flex items-center gap-2.5">
@@ -441,51 +457,51 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
               onDrop={handleDrop}
               onClick={triggerFileInput}
               className={`border-2 border-dashed rounded-xl p-7 md:p-8 text-center cursor-pointer transition-all ${
-                dragActive ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+                dragActive ? 'border-indigo-400 bg-indigo-500/15' : 'border-slate-400/35 hover:border-indigo-400/70 hover:bg-slate-900/70'
               }`}
             >
               <input 
                 type="file" 
                 id="resume-file-input" 
-                accept=".txt" 
+                accept=".pdf,.docx,.doc,.txt,image/png,image/jpeg,image/jpg" 
                 className="hidden" 
                 onChange={handleFileSelect}
               />
               <div className="flex flex-col items-center gap-3">
-                <div className="p-3 bg-slate-100 text-slate-500 rounded-full">
-                  <FileUp className="w-7 h-7 text-slate-400" />
+                <div className="p-3 bg-slate-900/80 text-slate-100 rounded-full border border-slate-400/20">
+                  <FileUp className="w-7 h-7 text-slate-100" />
                 </div>
-                <p className="text-sm md:text-base font-bold text-slate-800">Drag & drop your Resume (.txt) here</p>
-                <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">or click to browse from files</p>
+                <p className="text-sm md:text-base font-bold text-slate-100">Drag & drop your Resume here</p>
+                <p className="text-xs text-slate-300 font-semibold uppercase tracking-wider">or click to browse from files</p>
               </div>
             </div>
 
             {/* Quick Presets for Demo */}
-            <div className="flex flex-col gap-3 bg-white/20 p-4 rounded-xl border border-white/20">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="flex flex-col gap-3 bg-slate-900/70 p-4 rounded-xl border border-slate-400/20">
+              <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
                 ⚡ Don't have a file? Select an expert template to test instantly:
               </span>
               <div className="grid grid-cols-3 gap-3">
                 <button 
                   onClick={() => handleLoadPreset('frontend')}
-                  className="p-3 text-left bg-white/30 hover:bg-white/60 border border-white/40 rounded-lg transition-colors text-xs md:text-sm font-bold text-slate-700 flex flex-col gap-1 shadow-3xs cursor-pointer"
+                  className="p-3 text-left bg-slate-800/80 hover:bg-slate-700/90 border border-slate-400/20 rounded-lg transition-colors text-xs md:text-sm font-bold text-slate-100 flex flex-col gap-1 shadow-3xs cursor-pointer"
                 >
-                  <span className="text-indigo-600 font-black text-xs">Frontend Dev</span>
-                  <span className="text-[10px] text-slate-500 font-semibold">React, TS, Tailwind</span>
+                  <span className="text-indigo-400 font-black text-xs">Frontend Dev</span>
+                  <span className="text-[10px] text-slate-300 font-semibold">React, TS, Tailwind</span>
                 </button>
                 <button 
                   onClick={() => handleLoadPreset('ai')}
-                  className="p-3 text-left bg-white/30 hover:bg-white/60 border border-white/40 rounded-lg transition-colors text-xs md:text-sm font-bold text-slate-700 flex flex-col gap-1 shadow-3xs cursor-pointer"
+                  className="p-3 text-left bg-slate-800/80 hover:bg-slate-700/90 border border-slate-400/20 rounded-lg transition-colors text-xs md:text-sm font-bold text-slate-100 flex flex-col gap-1 shadow-3xs cursor-pointer"
                 >
-                  <span className="text-indigo-600 font-black text-xs">AI Engineer</span>
-                  <span className="text-[10px] text-slate-400 font-semibold">Python, Gemini API</span>
+                  <span className="text-indigo-400 font-black text-xs">AI Engineer</span>
+                  <span className="text-[10px] text-slate-300 font-semibold">Python, internAi API</span>
                 </button>
                 <button 
                   onClick={() => handleLoadPreset('fullstack')}
-                  className="p-3 text-left bg-white/30 hover:bg-white/60 border border-white/40 rounded-lg transition-colors text-xs md:text-sm font-bold text-slate-700 flex flex-col gap-1 shadow-3xs cursor-pointer"
+                  className="p-3 text-left bg-slate-800/80 hover:bg-slate-700/90 border border-slate-400/20 rounded-lg transition-colors text-xs md:text-sm font-bold text-slate-100 flex flex-col gap-1 shadow-3xs cursor-pointer"
                 >
-                  <span className="text-indigo-600 font-black text-xs">Full Stack</span>
-                  <span className="text-[10px] text-slate-400 font-semibold">Node.js, Express</span>
+                  <span className="text-indigo-400 font-black text-xs">Full Stack</span>
+                  <span className="text-[10px] text-slate-300 font-semibold">Node.js, Express</span>
                 </button>
               </div>
             </div>
@@ -493,23 +509,23 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
         ) : (
           <div className="flex flex-col gap-5 animate-fadeIn">
             {/* Loaded Status Bar */}
-            <div className="bg-white/30 border border-white/50 rounded-xl px-4 py-3 flex items-center justify-between gap-4 shadow-3xs">
+            <div className="bg-slate-900/70 border border-slate-400/20 rounded-xl px-4 py-3 flex items-center justify-between gap-4 shadow-3xs">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="p-2 bg-gradient-to-tr from-indigo-500 to-indigo-600 text-white rounded-lg shrink-0">
                   <Briefcase className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-black text-slate-900 truncate">{resumeFileName}</p>
-                  <p className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-widest mt-0.5 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping"></span>
-                    Verified with Gemini AI Insights
+                  <p className="text-sm font-black text-slate-100 truncate">{resumeFileName}</p>
+                  <p className="text-[10px] font-extrabold text-indigo-300 uppercase tracking-widest mt-0.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-ping"></span>
+                    Verified with internAi Insights
                   </p>
                 </div>
               </div>
               
               <button 
                 onClick={() => handleClearResume()}
-                className="text-xs font-extrabold uppercase tracking-widest text-slate-500 hover:text-red-600 hover:bg-red-50/50 px-3 py-2 rounded-md transition-all cursor-pointer"
+                className="text-xs font-extrabold uppercase tracking-widest text-slate-300 hover:text-red-400 hover:bg-red-500/10 px-3 py-2 rounded-md transition-all cursor-pointer"
               >
                 Reset
               </button>
@@ -517,14 +533,14 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
 
             {/* Analysis Section */}
             {isAnalysisLoading ? (
-              <div className="flex flex-col items-center justify-center p-10 bg-white/10 border border-white/20 rounded-xl gap-4 animate-pulse">
-                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest text-center">Gemini is analyzing your resume metrics and score...</span>
+              <div className="flex flex-col items-center justify-center p-10 bg-slate-900/70 border border-slate-400/20 rounded-xl gap-4 animate-pulse">
+                <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+                <span className="text-xs font-bold text-slate-200 uppercase tracking-widest text-center">internAi is analyzing your resume metrics and score...</span>
               </div>
             ) : resumeAnalysis ? (
               <div className="flex flex-col gap-5">
                 {/* Score & Vibe & Summary Header */}
-                <div className="flex flex-col sm:flex-row gap-5 items-center bg-white/45 p-5 border border-white/50 rounded-xl shadow-4xs">
+                <div className="flex flex-col sm:flex-row gap-5 items-center bg-slate-900/70 p-5 border border-slate-400/20 rounded-xl shadow-4xs">
                   <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <path
@@ -546,15 +562,15 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                     </svg>
                     <div className="absolute text-center flex flex-col items-center justify-center">
                       <span className="text-2xl font-black text-slate-900 leading-none">{resumeAnalysis.overallScore}</span>
-                      <span className="text-[9px] font-extrabold text-slate-500 uppercase tracking-wider mt-0.5">Rating</span>
+                      <span className="text-[9px] font-extrabold text-slate-300 uppercase tracking-wider mt-0.5">Rating</span>
                     </div>
                   </div>
                   
                   <div className="flex-1 text-center sm:text-left min-w-0">
-                    <div className="inline-block px-3 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-2">
+                    <div className="inline-block px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 rounded-full text-[10px] font-black uppercase tracking-widest mb-2">
                       ✨ {resumeAnalysis.industryVibe}
                     </div>
-                    <p className="text-sm text-slate-700 font-bold leading-relaxed">
+                    <p className="text-sm text-slate-200 font-bold leading-relaxed">
                       {resumeAnalysis.summary}
                     </p>
                   </div>
@@ -563,7 +579,7 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                 {/* Categories scores breakdown */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {resumeAnalysis.categories?.map((cat: any) => (
-                    <div key={cat.name} className="bg-white/20 p-4 border border-white/20 rounded-xl shadow-4xs flex flex-col justify-between">
+                    <div key={cat.name} className="bg-slate-900/70 p-4 border border-slate-400/20 rounded-xl shadow-4xs flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-xs font-black text-slate-800 uppercase tracking-wider">{cat.name}</span>
@@ -576,7 +592,7 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                           ></div>
                         </div>
                       </div>
-                      <p className="text-[11px] text-slate-500 mt-2.5 leading-relaxed font-semibold">{cat.feedback}</p>
+                      <p className="text-[11px] text-slate-300 mt-2.5 leading-relaxed font-semibold">{cat.feedback}</p>
                     </div>
                   ))}
                 </div>
@@ -584,14 +600,14 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                 {/* Strengths & Improvements Bento */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Strengths */}
-                  <div className="bg-emerald-50/30 border border-emerald-100/50 rounded-xl p-4 md:p-5">
-                    <h4 className="text-xs font-extrabold text-emerald-800 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                  <div className="bg-emerald-950/50 border border-emerald-400/20 rounded-xl p-4 md:p-5">
+                    <h4 className="text-xs font-extrabold text-emerald-200 uppercase tracking-widest flex items-center gap-1.5 mb-3">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       Key Strengths
                     </h4>
                     <ul className="flex flex-col gap-2.5">
                       {resumeAnalysis.strengths?.map((str: string, index: number) => (
-                        <li key={index} className="text-[11px] md:text-xs text-emerald-900 font-bold leading-relaxed flex gap-2 items-start">
+                        <li key={index} className="text-[11px] md:text-xs text-emerald-100 font-bold leading-relaxed flex gap-2 items-start">
                           <span className="text-emerald-500 text-sm shrink-0 mt-0.5">✓</span>
                           <span>{str}</span>
                         </li>
@@ -600,14 +616,14 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                   </div>
 
                   {/* Areas of Improvement */}
-                  <div className="bg-amber-50/30 border border-amber-100/50 rounded-xl p-4 md:p-5">
-                    <h4 className="text-xs font-extrabold text-amber-800 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                  <div className="bg-amber-950/50 border border-amber-400/20 rounded-xl p-4 md:p-5">
+                    <h4 className="text-xs font-extrabold text-amber-200 uppercase tracking-widest flex items-center gap-1.5 mb-3">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                       Improvement Plan
                     </h4>
                     <ul className="flex flex-col gap-2.5">
                       {resumeAnalysis.improvements?.map((imp: string, index: number) => (
-                        <li key={index} className="text-[11px] md:text-xs text-amber-900 font-bold leading-relaxed flex gap-2 items-start">
+                        <li key={index} className="text-[11px] md:text-xs text-amber-100 font-bold leading-relaxed flex gap-2 items-start">
                           <span className="text-amber-500 text-sm shrink-0 mt-0.5">→</span>
                           <span>{imp}</span>
                         </li>
@@ -617,12 +633,12 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                 </div>
 
                 {/* Suggested roles list and matching */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/20 p-4 rounded-xl border border-white/20">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/70 p-4 rounded-xl border border-slate-400/20">
                   <div className="flex flex-wrap items-center gap-2 min-w-0">
                     <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Top Targets:</span>
                     <div className="flex flex-wrap gap-1.5">
                       {resumeAnalysis.suggestedRoles?.map((role: string) => (
-                        <span key={role} className="text-[11px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-1 rounded-full">
+                        <span key={role} className="text-[11px] font-extrabold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-full">
                           {role}
                         </span>
                       ))}
@@ -646,26 +662,26 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
         <div className="flex flex-col gap-4 border-t border-slate-100/30 pt-4">
           {/* Quick Suggestions Strip */}
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Quick Suggestions:</span>
+            <span className="text-[11px] font-black text-slate-300 uppercase tracking-wider">Quick Suggestions:</span>
             <div className="grid grid-cols-3 gap-2">
               <button 
                 onClick={() => handleAskQuestion(resumeText ? "What specific technical skills should I add to my resume?" : "What technical skills are recruiters looking for in full-stack interns?")}
                 disabled={isResumeLoading || isAnalysisLoading}
-                className="py-2.5 px-1.5 bg-white/40 hover:bg-indigo-50/50 border border-slate-200/40 rounded-xl text-[10px] md:text-xs font-bold text-slate-700 text-center transition-all shadow-3xs cursor-pointer line-clamp-1 disabled:opacity-50"
+                className="py-2.5 px-1.5 bg-slate-900/70 hover:bg-slate-800/90 border border-slate-400/20 rounded-xl text-[10px] md:text-xs font-bold text-slate-100 text-center transition-all shadow-3xs cursor-pointer line-clamp-1 disabled:opacity-50"
               >
                 🛠️ Skill Strategy
               </button>
               <button 
                 onClick={() => handleAskQuestion(resumeText ? "Give me a mock interview challenge tailored for my resume" : "Give me a mock behavior interview question for junior engineers")}
                 disabled={isResumeLoading || isAnalysisLoading}
-                className="py-2.5 px-1.5 bg-white/40 hover:bg-indigo-50/50 border border-slate-200/40 rounded-xl text-[10px] md:text-xs font-bold text-slate-700 text-center transition-all shadow-3xs cursor-pointer line-clamp-1 disabled:opacity-50"
+                className="py-2.5 px-1.5 bg-slate-900/70 hover:bg-slate-800/90 border border-slate-400/20 rounded-xl text-[10px] md:text-xs font-bold text-slate-100 text-center transition-all shadow-3xs cursor-pointer line-clamp-1 disabled:opacity-50"
               >
                 🎯 Interview Prep
               </button>
               <button 
                 onClick={() => handleAskQuestion(resumeText ? "Rephrase my accomplishment points to have maximum impact" : "What is the best format for a junior resume?")}
                 disabled={isResumeLoading || isAnalysisLoading}
-                className="py-2.5 px-1.5 bg-white/40 hover:bg-indigo-50/50 border border-slate-200/40 rounded-xl text-[10px] md:text-xs font-bold text-slate-700 text-center transition-all shadow-3xs cursor-pointer line-clamp-1 disabled:opacity-50"
+                className="py-2.5 px-1.5 bg-slate-900/70 hover:bg-slate-800/90 border border-slate-400/20 rounded-xl text-[10px] md:text-xs font-bold text-slate-100 text-center transition-all shadow-3xs cursor-pointer line-clamp-1 disabled:opacity-50"
               >
                 📝 CV Optimizer
               </button>
@@ -674,7 +690,7 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
 
           {/* Chat History bubble stream */}
           <div 
-            className={`flex flex-col gap-3 overflow-y-auto pr-1 border border-slate-200/20 rounded-xl bg-white/40 shadow-inner scrollbar-thin transition-all duration-300 ${
+            className={`flex flex-col gap-3 overflow-y-auto pr-1 border border-slate-400/20 rounded-xl bg-slate-950/70 shadow-inner scrollbar-thin transition-all duration-300 ${
               (chatHistory.length > 0 || isResumeLoading)
                 ? 'p-4 min-h-[360px] max-h-[440px]'
                 : 'p-0 h-0 border-none opacity-0 overflow-hidden'
@@ -686,22 +702,22 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                 key={index} 
                 className={`flex flex-col max-w-[85%] rounded-2xl px-4 py-3 text-sm font-semibold leading-relaxed ${
                   msg.sender === 'user' 
-                    ? 'bg-indigo-600 text-white self-end rounded-tr-none shadow-3xs' 
-                    : 'bg-white/80 text-slate-800 self-start border border-slate-200/40 rounded-tl-none shadow-3xs'
+                    ? 'bg-indigo-600/95 text-white self-end rounded-tr-none shadow-3xs' 
+                    : 'bg-slate-900/90 text-slate-100 self-start border border-slate-400/20 rounded-tl-none shadow-3xs'
                 }`}
               >
                 <div className="prose prose-sm max-w-none text-inherit whitespace-pre-wrap leading-relaxed font-semibold">
                   {msg.text}
                 </div>
-                <span className={`text-[10px] mt-2 self-end ${msg.sender === 'user' ? 'text-indigo-200' : 'text-slate-400 font-medium'}`}>
+                <span className={`text-[10px] mt-2 self-end ${msg.sender === 'user' ? 'text-indigo-100' : 'text-slate-400 font-medium'}`}>
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             ))}
             {isResumeLoading && (
-              <div className="flex items-center gap-2 bg-white/50 border border-slate-200/20 text-slate-500 self-start rounded-2xl rounded-tl-none px-4 py-3 text-sm font-semibold shadow-3xs animate-pulse">
+              <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-400/20 text-slate-200 self-start rounded-2xl rounded-tl-none px-4 py-3 text-sm font-semibold shadow-3xs animate-pulse">
                 <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
-                <span>Gemini is thinking...</span>
+                <span>internAi is thinking...</span>
               </div>
             )}
           </div>
@@ -711,17 +727,17 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
             <div className="flex-1 relative">
               <input 
                 type="text" 
-                placeholder={resumeText ? "Ask Gemini anything else about this resume..." : "Ask Gemini any career, skill, or resume prep question..."} 
+                placeholder={resumeText ? "Ask internAi anything else about this resume..." : "Ask internAi any career, skill, or resume prep question..."} 	
                 value={customQuestion}
                 onChange={(e) => setCustomQuestion(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAskQuestion(customQuestion)}
-                className="w-full liquid-glass-input rounded-xl px-4.5 py-3 text-sm font-semibold text-slate-800 outline-none pr-12 shadow-3xs border border-slate-200/60 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-150 transition-all"
+                className="w-full liquid-glass-input rounded-xl px-4.5 py-3 text-sm font-semibold text-slate-100 outline-none pr-12 shadow-3xs border border-slate-400/20 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400/30 transition-all"
                 disabled={isResumeLoading || isAnalysisLoading}
               />
               <button 
                 onClick={() => handleAskQuestion(customQuestion)}
                 disabled={isResumeLoading || !customQuestion.trim() || isAnalysisLoading}
-                className="absolute right-2 top-2 p-2 text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 disabled:hover:bg-transparent rounded-lg transition-colors cursor-pointer"
+                className="absolute right-2 top-2 p-2 text-indigo-300 hover:bg-indigo-500/15 disabled:opacity-30 disabled:hover:bg-transparent rounded-lg transition-colors cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -740,8 +756,8 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
           {/* Header */}
           <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-white/20">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                <BarChart3 className="w-4 h-4 text-indigo-600" />
+              <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg">
+                <BarChart3 className="w-4 h-4 text-indigo-400" />
               </div>
               <div>
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Your Analytics</h3>
@@ -749,27 +765,27 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
               </div>
             </div>
             
-            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50/60 border border-indigo-100/50 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+            <span className="text-[10px] font-bold text-indigo-300 bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
               Live Insights
             </span>
           </div>
 
           {/* Performance Summary Metrics Tabs */}
-          <div className="grid grid-cols-3 border-b border-slate-100 bg-slate-50/30">
+          <div className="grid grid-cols-3 border-b border-slate-500/30 bg-slate-950/70">
             {/* Tab 1: Profile Views */}
             <button
               onClick={() => { setPerformanceMetric('views'); setHoveredDayIndex(null); }}
-              className={`p-3 text-left border-r border-slate-100 transition-all duration-200 cursor-pointer flex flex-col gap-1 ${
-                performanceMetric === 'views' ? 'bg-white border-b-2 border-b-indigo-600' : 'hover:bg-slate-50'
+              className={`p-3 text-left border-r border-slate-700/50 transition-all duration-200 cursor-pointer flex flex-col gap-1 rounded-t-2xl ${
+                performanceMetric === 'views' ? 'bg-slate-900/85 border-b-2 border-b-indigo-500' : 'hover:bg-slate-900/80'
               }`}
             >
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5 text-slate-400" /> Views
+              <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1">
+                <Eye className="w-3.5 h-3.5 text-slate-300" /> Views
               </span>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="text-base font-black text-slate-900">156</span>
-                <span className="text-[9px] font-extrabold text-emerald-600 flex items-center">
+                <span className="text-base font-black text-slate-100">156</span>
+                <span className="text-[9px] font-extrabold text-emerald-300 flex items-center">
                   <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> +24%
                 </span>
               </div>
@@ -779,16 +795,16 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
             {/* Tab 2: Post Engagement */}
             <button
               onClick={() => { setPerformanceMetric('engagements'); setHoveredDayIndex(null); }}
-              className={`p-3 text-left border-r border-slate-100 transition-all duration-200 cursor-pointer flex flex-col gap-1 ${
-                performanceMetric === 'engagements' ? 'bg-white border-b-2 border-b-indigo-600' : 'hover:bg-slate-50'
+              className={`p-3 text-left border-r border-slate-700/50 transition-all duration-200 cursor-pointer flex flex-col gap-1 rounded-t-2xl ${
+                performanceMetric === 'engagements' ? 'bg-slate-900/85 border-b-2 border-b-indigo-500' : 'hover:bg-slate-900/80'
               }`}
             >
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Users className="w-3.5 h-3.5 text-slate-400" /> Engagements
+              <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1">
+                <Users className="w-3.5 h-3.5 text-slate-300" /> Engagements
               </span>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="text-base font-black text-slate-900">344</span>
-                <span className="text-[9px] font-extrabold text-emerald-600 flex items-center">
+                <span className="text-base font-black text-slate-100">344</span>
+                <span className="text-[9px] font-extrabold text-emerald-300 flex items-center">
                   <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> +42%
                 </span>
               </div>
@@ -798,16 +814,16 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
             {/* Tab 3: Search Appearances */}
             <button
               onClick={() => { setPerformanceMetric('searches'); setHoveredDayIndex(null); }}
-              className={`p-3 text-left transition-all duration-200 cursor-pointer flex flex-col gap-1 ${
-                performanceMetric === 'searches' ? 'bg-white border-b-2 border-b-indigo-600' : 'hover:bg-slate-50'
+              className={`p-3 text-left transition-all duration-200 cursor-pointer flex flex-col gap-1 rounded-t-2xl ${
+                performanceMetric === 'searches' ? 'bg-slate-900/85 border-b-2 border-b-indigo-500' : 'hover:bg-slate-900/80'
               }`}
             >
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Award className="w-3.5 h-3.5 text-slate-400" /> Searches
+              <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1">
+                <Award className="w-3.5 h-3.5 text-slate-300" /> Searches
               </span>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="text-base font-black text-slate-900">67</span>
-                <span className="text-[9px] font-extrabold text-indigo-600 flex items-center">
+                <span className="text-base font-black text-slate-100">67</span>
+                <span className="text-[9px] font-extrabold text-indigo-300 flex items-center">
                   <TrendingUp className="w-2.5 h-2.5 mr-0.5" /> +18%
                 </span>
               </div>
@@ -816,14 +832,14 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
           </div>
 
           {/* Interactive Sparkline Chart Workspace */}
-          <div className="p-4 flex flex-col gap-3 bg-white/40">
-            <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <div className="p-4 flex flex-col gap-3 bg-slate-950/75 border border-slate-400/20 rounded-3xl shadow-inner">
+            <div className="flex items-center justify-between text-[10px] font-bold text-slate-300 uppercase tracking-wider">
               <span>Weekly Trend ({performanceMetric === 'views' ? 'Profile Views' : performanceMetric === 'engagements' ? 'Engagements' : 'Search Appearances'})</span>
-              <span className="text-indigo-600 font-extrabold">Hover over data points</span>
+              <span className="text-indigo-300 font-extrabold">Hover over data points</span>
             </div>
 
             {/* SVG Interactive Chart */}
-            <div className="relative h-28 w-full bg-slate-50/60 border border-slate-100 rounded-xl p-3 flex flex-col justify-between overflow-hidden">
+            <div className="relative h-28 w-full bg-slate-900/85 border border-slate-500/30 rounded-2xl p-3 flex flex-col justify-between overflow-hidden">
               {/* Tooltip Overlay */}
               <AnimatePresence>
                 {hoveredDayIndex !== null && (
@@ -852,15 +868,15 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
               <div className="w-full h-16 relative">
                 <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
                   {/* Grid Lines */}
-                  <line x1="0" y1="5" x2="100" y2="5" stroke="#f1f5f9" strokeWidth="0.5" strokeDasharray="2,2" />
-                  <line x1="0" y1="15" x2="100" y2="15" stroke="#f1f5f9" strokeWidth="0.5" strokeDasharray="2,2" />
-                  <line x1="0" y1="25" x2="100" y2="25" stroke="#f1f5f9" strokeWidth="0.5" strokeDasharray="2,2" />
+                  <line x1="0" y1="5" x2="100" y2="5" stroke="rgba(148, 163, 184, 0.36)" strokeWidth="0.75" strokeDasharray="2,2" />
+                  <line x1="0" y1="15" x2="100" y2="15" stroke="rgba(148, 163, 184, 0.36)" strokeWidth="0.75" strokeDasharray="2,2" />
+                  <line x1="0" y1="25" x2="100" y2="25" stroke="rgba(148, 163, 184, 0.36)" strokeWidth="0.75" strokeDasharray="2,2" />
 
                   {/* Gradient Fill under the line */}
                   <defs>
                     <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.22" />
-                      <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.0" />
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.04" />
                     </linearGradient>
                   </defs>
 
@@ -870,9 +886,10 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                       <path 
                         d="M 0 25 Q 16.6 20 16.6 18 T 33.3 22 T 50 12 T 66.6 8 T 83.3 14 T 100 3" 
                         fill="none" 
-                        stroke="#4f46e5" 
-                        strokeWidth="2" 
+                        stroke="#8b5cf6" 
+                        strokeWidth="2.5" 
                         strokeLinecap="round" 
+                        strokeLinejoin="round"
                       />
                       <path 
                         d="M 0 25 Q 16.6 20 16.6 18 T 33.3 22 T 50 12 T 66.6 8 T 83.3 14 T 100 3 L 100 30 L 0 30 Z" 
@@ -886,13 +903,14 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                       <path 
                         d="M 0 20 Q 16.6 12 16.6 14 T 33.3 22 T 50 8 T 66.6 4 T 83.3 12 T 100 2" 
                         fill="none" 
-                        stroke="#06b6d4" 
-                        strokeWidth="2" 
+                        stroke="#38bdf8" 
+                        strokeWidth="2.5" 
                         strokeLinecap="round" 
+                        strokeLinejoin="round"
                       />
                       <linearGradient id="chartGradientEng" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.22" />
-                        <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
+                        <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.05" />
                       </linearGradient>
                       <path 
                         d="M 0 20 Q 16.6 12 16.6 14 T 33.3 22 T 50 8 T 66.6 4 T 83.3 12 T 100 2 L 100 30 L 0 30 Z" 
@@ -906,9 +924,10 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                       <path 
                         d="M 0 24 Q 16.6 18 16.6 18 T 33.3 26 T 50 10 T 66.6 6 T 83.3 14 T 100 4" 
                         fill="none" 
-                        stroke="#6366f1" 
-                        strokeWidth="2" 
+                        stroke="#60a5fa" 
+                        strokeWidth="2.5" 
                         strokeLinecap="round" 
+                        strokeLinejoin="round"
                       />
                       <path 
                         d="M 0 24 Q 16.6 18 16.6 18 T 33.3 26 T 50 10 T 66.6 6 T 83.3 14 T 100 4 L 100 30 L 0 30 Z" 
@@ -928,14 +947,14 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
                       className="flex-1 h-full cursor-pointer relative group"
                     >
                       {/* Hover vertical alignment reference line */}
-                      <div className={`absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[1px] bg-indigo-200/50 transition-opacity ${hoveredDayIndex === dayIndex ? 'opacity-100' : 'opacity-0'}`}></div>
+                      <div className={`absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[1px] bg-indigo-300/70 transition-opacity ${hoveredDayIndex === dayIndex ? 'opacity-100' : 'opacity-0'}`}></div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Day Labels */}
-              <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase tracking-wider px-1">
+              <div className="flex justify-between text-[8px] font-black text-slate-300 uppercase tracking-wider px-1">
                 <span>Wed</span>
                 <span>Thu</span>
                 <span>Fri</span>
@@ -947,11 +966,11 @@ Keywords: React, Node.js, Express, TypeScript, Python, Javascript, SQL, Git, API
             </div>
 
             {/* AI Performance Tips Banner */}
-            <div className="bg-gradient-to-tr from-slate-50 to-indigo-50/30 border border-indigo-100/50 p-3 rounded-xl flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0 animate-pulse" />
+            <div className="bg-slate-900/80 border border-slate-500/30 p-3 rounded-xl flex items-start gap-2">
+              <AiIcon className="w-4 h-4 text-indigo-300 mt-0.5 shrink-0 animate-pulse" />
               <div className="flex-1">
-                <span className="text-[8px] font-bold text-indigo-600 uppercase tracking-widest block">AI Career Optimization Tip:</span>
-                <p className="text-[11px] text-slate-700 font-semibold leading-relaxed mt-0.5">
+                <span className="text-[8px] font-bold text-indigo-300 uppercase tracking-widest block">AI Career Optimization Tip:</span>
+                <p className="text-[11px] text-slate-200 font-semibold leading-relaxed mt-0.5">
                   {performanceMetric === 'views' && "Your profile views surged by 24% after loading your resume! Recruiters looking for 'React Developer' are visiting your timeline."}
                   {performanceMetric === 'engagements' && "Posting updates about fullstack projects and cloud frameworks is earning high visibility from engineering leaders."}
                   {performanceMetric === 'searches' && "You are appearing in recruiter search filters because your resume features hot keywords: TypeScript, Node.js, and Express."}
@@ -983,7 +1002,7 @@ To improve search visibility by **+35%**:
                     }
                   ]);
                 }}
-                className="py-1.5 px-3 bg-slate-100 hover:bg-indigo-50 border border-slate-200/50 text-slate-600 hover:text-indigo-700 text-[9px] font-extrabold uppercase tracking-widest rounded-lg cursor-pointer transition-all"
+                className="py-1.5 px-3 bg-slate-800/80 hover:bg-slate-700/90 border border-slate-500/30 text-slate-100 hover:text-indigo-100 text-[9px] font-extrabold uppercase tracking-widest rounded-lg cursor-pointer transition-all"
               >
                 Simulate Reach Campaign
               </button>
@@ -992,384 +1011,6 @@ To improve search visibility by **+35%**:
         </div>
       )}
 
-      {/* Feed List */}
-      <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-center px-2 py-2 border-b border-slate-200/30 pb-3">
-          <span className="font-sans font-black text-2xl md:text-3xl tracking-tighter text-slate-950 lowercase leading-none select-none hover:scale-[1.01] hover:text-indigo-950 transition-all duration-200">
-            your job our vision
-          </span>
-          {posts.length > 0 && onDeleteAllPosts && (
-            <button
-              onClick={onDeleteAllPosts}
-              className="text-xs font-bold text-red-600 hover:text-red-800 flex items-center gap-1.5 cursor-pointer transition-all px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100/80 shadow-xs border border-red-200/50"
-              title="Delete all posts"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete All Posts</span>
-            </button>
-          )}
-        </div>
-
-        {filteredPosts.length === 0 ? (
-          searchQuery ? (
-            <div className="liquid-glass-card rounded-xl p-8 text-center text-slate-500 shadow-sm flex flex-col items-center gap-3">
-              <span className="text-4xl">📭</span>
-              <p className="text-sm font-semibold">No matching posts found for "{searchQuery}". Try another term or clear your search.</p>
-            </div>
-          ) : null
-        ) : (
-          filteredPosts.map((post) => {
-            const hasLiked = post.likes.includes("Somnath Das");
-            const isCommentsExpanded = activeCommentPostId === post.id;
-            
-            return (
-              <div 
-                key={post.id} 
-                className="liquid-glass-card rounded-xl shadow-sm flex flex-col"
-                id={`ln-post-card-${post.id}`}
-              >
-                {/* Author row */}
-                <div className="flex justify-between items-start p-4 pb-3">
-                  <div className="flex gap-3">
-                    <img 
-                      src={post.authorAvatar} 
-                      alt={post.authorName} 
-                      className="w-11 h-11 rounded-full object-cover border border-slate-200"
-                    />
-                    <div className="flex flex-col">
-                      <h4 className="text-sm font-bold text-slate-900 hover:text-[#0a66c2] hover:underline cursor-pointer tracking-tight">
-                        {post.authorName}
-                      </h4>
-                      <p className="text-xs text-slate-500 leading-tight truncate max-w-[280px] sm:max-w-[400px] font-medium">
-                        {post.authorHeadline}
-                      </p>
-                      <span className="text-[10px] text-slate-400 mt-0.5 font-semibold uppercase tracking-wider">{post.timestamp}</span>
-                    </div>
-                  </div>
-
-                  {onDeletePost && (
-                    <button
-                      onClick={() => onDeletePost(post.id)}
-                      className="text-slate-400 hover:text-red-600 p-1.5 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
-                      title="Delete post"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="px-5 pb-3 text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
-                  {post.content}
-                </div>
-
-                {/* Image */}
-                {post.image && (
-                  <div className="border-y border-slate-100 overflow-hidden bg-slate-50">
-                    <img 
-                      src={post.image} 
-                      alt="Post attachment" 
-                      className="w-full max-h-96 object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* Engagement Stats row */}
-                <div className="px-5 py-2.5 border-b border-slate-100 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50/20">
-                  <div className="flex items-center gap-1">
-                    <span className="flex items-center justify-center bg-[#0a66c2] text-white rounded-full w-4 h-4 p-0.5 text-[10px]">
-                      👍
-                    </span>
-                    <span>{post.likes.length} likes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => setActiveCommentPostId(isCommentsExpanded ? null : post.id)}
-                      className="hover:underline hover:text-[#0a66c2]"
-                    >
-                      {post.comments.length} comments
-                    </button>
-                    <span>•</span>
-                    <span>{post.sharesCount} shares</span>
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className="px-2 py-1.5 flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-600">
-                  <button 
-                    onClick={() => onLikePost(post.id)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-slate-50 rounded-md cursor-pointer transition-colors ${
-                      hasLiked ? 'text-[#0a66c2]' : ''
-                    }`}
-                  >
-                    <ThumbsUp className={`w-4 h-4 ${hasLiked ? 'fill-[#0a66c2]' : ''}`} />
-                    <span>Like</span>
-                  </button>
-
-                  <button 
-                    onClick={() => {
-                      setActiveCommentPostId(isCommentsExpanded ? null : post.id);
-                    }}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-slate-50 rounded-md cursor-pointer transition-colors ${
-                      isCommentsExpanded ? 'text-[#0a66c2]' : ''
-                    }`}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>Comment</span>
-                  </button>
-
-                  <button 
-                    onClick={() => onSharePost(post.id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-slate-50 rounded-md cursor-pointer transition-colors hover:text-[#0a66c2]"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    <span>Share</span>
-                  </button>
-                </div>
-
-                {/* Expandable Comments list */}
-                {isCommentsExpanded && (
-                  <div className="bg-slate-50/40 p-4 border-t border-slate-150 flex flex-col gap-4">
-                    {/* Add comment row */}
-                    <div className="flex gap-2.5 items-start">
-                      <img 
-                        src={profile.avatar} 
-                        alt={profile.name} 
-                        className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                      />
-                      <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3.5 py-1 shadow-xs">
-                        <input
-                          type="text"
-                          placeholder="Add a comment..."
-                          value={commentInput[post.id] || ''}
-                          onChange={(e) => setCommentInput(prev => ({ ...prev, [post.id]: e.target.value }))}
-                          onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit(post.id)}
-                          className="flex-1 bg-transparent text-xs text-slate-800 outline-none border-none py-1.5 font-medium"
-                        />
-                        <button 
-                          onClick={() => handleCommentSubmit(post.id)}
-                          className="text-[#0a66c2] hover:text-[#004182] font-bold text-xs uppercase tracking-wider py-1 px-2.5 rounded-full hover:bg-[#f3f9fc] cursor-pointer"
-                        >
-                          Post
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Previous comments */}
-                    <div className="flex flex-col gap-2.5 mt-1">
-                      {post.comments.map((comment) => (
-                        <div key={comment.id} className="flex gap-2.5 items-start">
-                          <img 
-                            src={comment.authorAvatar} 
-                            alt={comment.authorName} 
-                            className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                          />
-                          <div className="flex-1 bg-[#edf3f8] hover:bg-slate-200/60 rounded-xl p-3 text-xs text-slate-800 transition-colors">
-                            <div className="flex justify-between items-baseline mb-1">
-                              <h5 className="font-bold text-slate-900">{comment.authorName}</h5>
-                              <span className="text-[10px] font-bold text-slate-400">{comment.timestamp}</span>
-                            </div>
-                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                              {comment.authorHeadline}
-                            </p>
-                            <p className="text-slate-700 font-medium leading-normal">{comment.content}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* CREATE POST MODAL WITH AI ASSISTANT */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white rounded-lg border border-gray-300 w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]"
-            >
-              {/* Modal Header */}
-              <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                <h3 className="font-semibold text-gray-800 text-sm flex items-center gap-1.5">
-                  Create a post
-                </h3>
-                <button 
-                  onClick={handleCloseModal}
-                  className="p-1 hover:bg-gray-200 rounded-full cursor-pointer text-gray-500 hover:text-gray-800 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Modal Body */}
-              <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-3">
-                {/* User author profile */}
-                <div className="flex gap-2.5 items-center">
-                  <img 
-                    src={profile.avatar} 
-                    alt={profile.name} 
-                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                  />
-                  <div>
-                    <h4 className="font-semibold text-gray-800 text-xs">{profile.name}</h4>
-                    <span className="text-[10px] text-gray-500">Post to anyone</span>
-                  </div>
-                </div>
-
-                {/* AI Draft Assist Toggle Box */}
-                {!showAiHelper ? (
-                  <button 
-                    onClick={() => setShowAiHelper(true)}
-                    className="flex items-center gap-2 border border-[#8f58f7]/40 hover:border-[#8f58f7] bg-[#f9f6ff] text-[#6d25e4] text-xs font-semibold py-2 px-3 rounded-md cursor-pointer transition-all shadow-2xs self-start"
-                  >
-                    <Sparkles className="w-4 h-4 text-[#7839ec]" />
-                    <span>Need inspiration? Draft with Gemini AI Assistant</span>
-                  </button>
-                ) : (
-                  <div className="bg-[#f9f6ff] border border-[#8f58f7]/30 rounded-lg p-3 flex flex-col gap-2.5 shadow-inner">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-[#6d25e4] flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        AI Draft Assistant
-                      </span>
-                      <button 
-                        onClick={() => {
-                          setShowAiHelper(false);
-                          setAiError('');
-                        }}
-                        className="text-gray-400 hover:text-gray-600 text-xs"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-semibold text-gray-500">What do you want to post about?</label>
-                      <input 
-                        type="text"
-                        placeholder="E.g., scalable react hooks, tech teamwork, morning routines..."
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                        className="w-full bg-white border border-gray-300 text-xs rounded-sm p-2 outline-none focus:ring-1 focus:ring-[#8f58f7]"
-                      />
-                    </div>
-
-                    <div className="flex gap-4 items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-semibold text-gray-500">Tone:</span>
-                        <select 
-                          value={aiTone} 
-                          onChange={(e) => setAiTone(e.target.value)}
-                          className="bg-white border border-gray-300 rounded-sm text-[11px] p-1 text-gray-700 focus:ring-1 focus:ring-[#8f58f7] outline-none cursor-pointer"
-                        >
-                          <option value="professional">Professional</option>
-                          <option value="insightful">Insightful</option>
-                          <option value="casual">Casual</option>
-                        </select>
-                      </div>
-
-                      <button 
-                        onClick={handleDraftWithAi}
-                        disabled={isAiLoading}
-                        className="bg-[#6d25e4] hover:bg-[#5217b7] text-white font-semibold text-[11px] px-3.5 py-1.5 rounded-full flex items-center gap-1 shadow-sm cursor-pointer disabled:opacity-50"
-                      >
-                        {isAiLoading ? (
-                          <>
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                            <span>Drafting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-3 h-3" />
-                            <span>Generate Draft</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    {aiError && (
-                      <div className="flex items-center gap-1.5 text-red-500 text-[10px] mt-0.5 font-medium">
-                        <AlertCircle className="w-3 h-3" />
-                        <span>{aiError}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Primary text editor */}
-                <textarea
-                  placeholder="What do you want to talk about?"
-                  value={postContent}
-                  onChange={(e) => setPostContent(e.target.value)}
-                  className="w-full min-h-[140px] text-xs text-gray-800 outline-none resize-none border-none placeholder-gray-400 py-1"
-                />
-
-                {/* Attached image preview */}
-                {attachedImage && (
-                  <div className="relative border border-gray-200 rounded-md overflow-hidden max-h-48 bg-gray-50 flex items-center justify-center">
-                    <img 
-                      src={attachedImage} 
-                      alt="Attachment Preview" 
-                      className="max-h-48 object-contain"
-                    />
-                    <button 
-                      onClick={() => setAttachedImage('')}
-                      className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-1 hover:bg-black cursor-pointer transition-colors"
-                      title="Remove image"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Choose a preset illustration if desired */}
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] font-semibold text-gray-500">Attach a banner illustration:</span>
-                  <div className="grid grid-cols-4 gap-2">
-                    {presetImages.map((img) => (
-                      <button
-                        key={img.name}
-                        onClick={() => setAttachedImage(img.url)}
-                        className={`border rounded-md overflow-hidden relative group cursor-pointer aspect-video bg-gray-100 ${
-                          attachedImage === img.url ? 'ring-2 ring-[#0a66c2] border-transparent' : 'border-gray-200 hover:border-gray-400'
-                        }`}
-                      >
-                        <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
-                        <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] text-center py-0.5 opacity-85 group-hover:opacity-100 font-medium">
-                          {img.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="px-4 py-3 border-t border-gray-200 flex justify-end gap-2 bg-gray-50">
-                <button 
-                  onClick={handleCloseModal}
-                  className="px-3.5 py-1.5 border border-gray-300 hover:bg-gray-100 rounded-full text-xs font-semibold text-gray-600 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleSubmitPost}
-                  disabled={!postContent.trim() && !attachedImage}
-                  className="bg-[#0a66c2] hover:bg-[#004182] text-white font-semibold text-xs px-4 py-1.5 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none shadow-sm"
-                >
-                  Post
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* AI ANSWER POPUP MODAL */}
       <AnimatePresence>
@@ -1385,8 +1026,8 @@ To improve search visibility by **+35%**:
               {/* Modal Header */}
               <div className="px-5 py-4 border-b border-white/30 flex justify-between items-center bg-white/20">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-indigo-600" />
-                  <h3 className="font-extrabold text-slate-800 text-sm tracking-tight">Gemini Career Assistant</h3>
+                  <AiIcon className="w-5 h-5 text-indigo-600" />
+                  <h3 className="font-extrabold text-slate-800 text-sm tracking-tight">internAi Career Assistant</h3>
                 </div>
                 <button 
                   onClick={() => setShowAnswerModal(false)}
@@ -1450,7 +1091,7 @@ To improve search visibility by **+35%**:
               {/* Modal Content */}
               <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-4">
                 <div className="text-xs font-semibold text-slate-600 bg-white/20 border border-white/30 rounded-lg p-3 text-center">
-                  Matched by Gemini AI based on your professional experience and core skill stack.
+                  Matched by internAi based on your professional experience and core skill stack.
                 </div>
                 
                 {isInternshipsLoading ? (
@@ -1475,7 +1116,7 @@ To improve search visibility by **+35%**:
                             <h4 className="text-sm font-extrabold text-slate-900 mt-0.5">{rec.roleTitle}</h4>
                           </div>
                           <div className="flex items-center gap-1 bg-indigo-50/50 px-2 py-1 rounded-full text-indigo-700 border border-white/30">
-                            <Sparkles className="w-3.5 h-3.5" />
+                            <AiIcon className="w-3.5 h-3.5" />
                             <span className="text-[10px] font-black">{rec.suitabilityScore}% Match</span>
                           </div>
                         </div>
@@ -1503,7 +1144,7 @@ To improve search visibility by **+35%**:
 
               {/* Modal Footer */}
               <div className="px-5 py-3.5 border-t border-white/30 flex justify-between items-center bg-white/20">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Powered by Gemini AI</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Powered by internAi</p>
                 <button 
                   onClick={() => setShowInternshipsModal(false)}
                   className="px-4 py-2 liquid-glass-primary-btn font-extrabold text-[11px] uppercase tracking-wider rounded-full transition-colors cursor-pointer"

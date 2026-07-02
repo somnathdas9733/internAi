@@ -46,7 +46,7 @@ export const initialProfile: Profile = {
     "Express.js",
     "State Management",
     "RESTful APIs",
-    "Gemini AI SDK",
+    "internAi SDK",
     "Next.js",
     "System Architecture",
     "UI/UX Design"
@@ -101,7 +101,7 @@ export const initialJobs: Job[] = [
     description: "Stripe's developer experience team is looking for an engineer to integrate large language model agents and responsive workflows into our billing dashboard ecosystem. Help build the future of AI-driven payment operations.",
     requirements: [
       "Strong coding foundation in Node.js, Express, React, and TypeScript.",
-      "Experience calling LLM endpoints like Gemini API server-side.",
+      "Experience calling LLM endpoints like internAi API server-side.",
       "A passion for developer tools, clean API design, and gorgeous UI styling."
     ],
     applied: false,

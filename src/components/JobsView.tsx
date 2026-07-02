@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Briefcase, MapPin, Building2, Sparkles, AlertCircle, Loader2, CheckCircle, FileText, ArrowLeft } from 'lucide-react';
+import { Briefcase, MapPin, Building2, AlertCircle, Loader2, CheckCircle, FileText, ArrowLeft } from 'lucide-react';
+import AiIcon from './AiIcon';
 import { Job, Profile } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -87,24 +88,24 @@ export default function JobsView({ jobs, profile, onApplyJob, searchQuery }: Job
       {/* Top Banner Search Fields */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative flex items-center">
-          <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+          <Briefcase className="w-4 h-4 text-slate-200 absolute left-3 pointer-events-none z-10" />
           <input 
             type="text" 
             placeholder="Search job titles, companies..."
             value={jobSearchText}
             onChange={(e) => setJobSearchText(e.target.value)}
-            className="w-full bg-[#EDF3F8] text-xs pl-9 pr-3 py-2.5 rounded-md outline-none border border-transparent focus:bg-white focus:ring-2 focus:ring-[#0a66c2]"
+            className="w-full liquid-glass-input text-xs pl-9 pr-3 py-2.5 rounded-md outline-none focus:ring-1 focus:ring-indigo-500"
           />
         </div>
         
         <div className="flex-1 relative flex items-center">
-          <MapPin className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+          <MapPin className="w-4 h-4 text-slate-200 absolute left-3 pointer-events-none z-10" />
           <input 
             type="text" 
             placeholder="City, state, or remote..."
             value={jobLocationText}
             onChange={(e) => setJobLocationText(e.target.value)}
-            className="w-full bg-[#EDF3F8] text-xs pl-9 pr-3 py-2.5 rounded-md outline-none border border-transparent focus:bg-white focus:ring-2 focus:ring-[#0a66c2]"
+            className="w-full liquid-glass-input text-xs pl-9 pr-3 py-2.5 rounded-md outline-none focus:ring-1 focus:ring-indigo-500"
           />
         </div>
       </div>
@@ -128,8 +129,8 @@ export default function JobsView({ jobs, profile, onApplyJob, searchQuery }: Job
                   onClick={() => setSelectedJobId(job.id)}
                   className={`p-3.5 rounded-xl border flex gap-3 cursor-pointer transition-all ${
                     isSelected 
-                      ? 'border-[#0a66c2] bg-[#f3f9fc] shadow-2xs' 
-                      : 'border-slate-200 bg-white hover:border-slate-300'
+                      ? 'border-indigo-500/80 bg-indigo-500/10 shadow-[0_0_12px_rgba(99,102,241,0.15)]' 
+                      : 'border-slate-800 bg-white hover:border-slate-700'
                   }`}
                   id={`ln-job-list-item-${job.id}`}
                 >
@@ -253,19 +254,19 @@ export default function JobsView({ jobs, profile, onApplyJob, searchQuery }: Job
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white rounded-lg border border-gray-300 w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]"
+              className="liquid-glass-card rounded-2xl border border-white/20 w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]"
             >
               {/* Modal Header */}
-              <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+              <div className="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-slate-900/80">
                 <div className="flex flex-col">
-                  <h3 className="font-semibold text-gray-800 text-xs">
+                  <h3 className="font-semibold text-slate-100 text-xs">
                     Easy Apply to {selectedJob.company}
                   </h3>
-                  <span className="text-[10px] text-gray-500">{selectedJob.title}</span>
+                  <span className="text-[10px] text-slate-400">{selectedJob.title}</span>
                 </div>
                 <button 
                   onClick={() => setIsApplyModalOpen(false)}
-                  className="p-1 hover:bg-gray-200 rounded-full cursor-pointer text-gray-500 hover:text-gray-800 transition-colors"
+                  className="p-1 hover:bg-white/15 rounded-full cursor-pointer text-slate-400 hover:text-slate-100 transition-colors"
                 >
                   ✕
                 </button>
@@ -274,14 +275,14 @@ export default function JobsView({ jobs, profile, onApplyJob, searchQuery }: Job
               {/* Modal Body */}
               <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-4">
                 {/* Profile Overview snapshot */}
-                <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                  <h4 className="text-[10.5px] font-bold text-gray-800 mb-2">Contact Information Summary</h4>
+                <div className="p-3 bg-white/5 border border-white/10 rounded-md">
+                  <h4 className="text-[10.5px] font-bold text-slate-200 mb-2">Contact Information Summary</h4>
                   <div className="flex gap-3 items-center text-xs">
-                    <img src={profile.avatar} alt={profile.name} className="w-10 h-10 rounded-full object-cover border border-gray-200" />
+                    <img src={profile.avatar} alt={profile.name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
                     <div>
-                      <p className="font-semibold text-gray-800">{profile.name}</p>
-                      <p className="text-[10px] text-gray-500">{profile.headline}</p>
-                      <p className="text-[9.5px] text-gray-400 mt-0.5">{profile.location}</p>
+                      <p className="font-semibold text-slate-100">{profile.name}</p>
+                      <p className="text-[10px] text-slate-400">{profile.headline}</p>
+                      <p className="text-[9.5px] text-slate-400 mt-0.5">{profile.location}</p>
                     </div>
                   </div>
                 </div>
@@ -289,11 +290,11 @@ export default function JobsView({ jobs, profile, onApplyJob, searchQuery }: Job
                 {/* Cover letter section */}
                 <div className="flex flex-col gap-1.5 flex-1">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10.5px] font-bold text-gray-800">Cover Letter</label>
+                    <label className="text-[10.5px] font-bold text-slate-200">Cover Letter</label>
                     <button 
                       onClick={handleGenerateAiCoverLetter}
                       disabled={isAiLoading}
-                      className="border border-[#0a66c2]/40 hover:border-[#0a66c2] bg-[#f3f9fc] hover:bg-[#e2f1f8] text-[#0a66c2] font-bold text-[10px] py-1.5 px-3 rounded-full flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                      className="border border-indigo-500/30 hover:border-indigo-500 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 font-bold text-[10px] py-1.5 px-3 rounded-full flex items-center gap-1 cursor-pointer disabled:opacity-50 transition-all"
                     >
                       {isAiLoading ? (
                         <>
@@ -302,8 +303,8 @@ export default function JobsView({ jobs, profile, onApplyJob, searchQuery }: Job
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-3 h-3 text-[#7839ec]" />
-                          <span>Draft Tailored with Gemini AI ✨</span>
+                          <AiIcon className="w-3 h-3 text-[#7839ec]" />
+                          <span>Draft Tailored with internAi ✨</span>
                         </>
                       )}
                     </button>
@@ -320,22 +321,22 @@ export default function JobsView({ jobs, profile, onApplyJob, searchQuery }: Job
                     placeholder="Write a cover letter or click above to draft a tailored introduction dynamically matching your profile experience..."
                     value={coverLetterText}
                     onChange={(e) => setCoverLetterText(e.target.value)}
-                    className="w-full min-h-[180px] text-xs p-2.5 bg-white border border-gray-300 rounded-md outline-none focus:ring-1 focus:ring-[#0a66c2] resize-y placeholder-gray-400 font-sans"
+                    className="w-full min-h-[180px] text-xs p-2.5 liquid-glass-input rounded-md outline-none resize-y font-sans"
                   />
                 </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="px-4 py-3 border-t border-gray-200 flex justify-end gap-2 bg-gray-50">
+              <div className="px-4 py-3 border-t border-white/10 flex justify-end gap-2 bg-slate-900/80">
                 <button 
                   onClick={() => setIsApplyModalOpen(false)}
-                  className="px-3.5 py-1.5 border border-gray-300 hover:bg-gray-100 rounded-full text-xs font-semibold text-gray-600 cursor-pointer"
+                  className="px-3.5 py-1.5 border border-white/20 hover:bg-white/10 rounded-full text-xs font-semibold text-slate-300 hover:text-slate-100 cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleSubmitApplication}
-                  className="bg-[#0a66c2] hover:bg-[#004182] text-white font-semibold text-xs px-5 py-1.5 rounded-full transition-colors cursor-pointer shadow-sm"
+                  className="liquid-glass-primary-btn text-xs px-5 py-1.5 rounded-full cursor-pointer shadow-sm"
                 >
                   Submit Application
                 </button>

@@ -42,19 +42,19 @@ export default function Sidebar({ profile, onViewProfile, connectionsCount }: Si
           </div>
         </div>
 
-        {/* Analytics stats */}
+        {/* Dashboard stats */}
         <div className="py-4 px-4 text-xs border-b border-white/30 flex flex-col gap-2.5 bg-white/20">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-            <span className="text-slate-500">Connections</span>
+            <span className="text-slate-500">Resume Matches</span>
             <span className="text-indigo-600 font-extrabold">{connectionsCount}</span>
           </div>
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-            <span className="text-slate-500">Profile views</span>
-            <span className="text-slate-900">412</span>
+            <span className="text-slate-500">Analysis Score</span>
+            <span className="text-slate-900">92</span>
           </div>
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-            <span className="text-slate-500">Post impressions</span>
-            <span className="text-slate-900">1,894</span>
+            <span className="text-slate-500">Internship Picks</span>
+            <span className="text-slate-900">24</span>
           </div>
         </div>
 
@@ -65,30 +65,24 @@ export default function Sidebar({ profile, onViewProfile, connectionsCount }: Si
         </button>
       </div>
 
-      {/* Community / Groups Card */}
+      {/* AI Focus Card */}
       <div className="liquid-glass-card rounded-xl p-4 shadow-sm hidden md:block">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Recent Groups</h3>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">AI Focus Areas</h3>
         
         <ul className="space-y-3">
           <li className="text-sm font-bold flex items-center gap-2.5 hover:text-[#0A66C2] text-slate-700 cursor-pointer">
-            <span className="text-slate-400">#</span> React Developers Worldwide
+            <span className="text-slate-400">✦</span> Resume Insights
           </li>
           <li className="text-sm font-bold flex items-center gap-2.5 hover:text-[#0A66C2] text-slate-700 cursor-pointer">
-            <span className="text-slate-400">#</span> AI & Frontend Synergy 2026
+            <span className="text-slate-400">✦</span> Internship Matching
           </li>
           <li className="text-sm font-bold flex items-center gap-2.5 hover:text-[#0A66C2] text-slate-700 cursor-pointer">
-            <span className="text-slate-400">#</span> webperf
+            <span className="text-slate-400">✦</span> Skill Strategy
           </li>
         </ul>
 
-        <div className="mt-4 pt-3 border-t border-white/30 flex justify-between items-center text-sm font-bold uppercase tracking-wider text-[#0a66c2]">
-          <button className="hover:underline cursor-pointer">Groups</button>
-          <button className="p-1 hover:bg-white/30 rounded-full cursor-pointer text-slate-400 transition-colors">
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="mt-2 text-sm font-bold uppercase tracking-wider text-[#0a66c2]">
-          <button className="hover:underline cursor-pointer">Events</button>
+        <div className="mt-4 pt-3 border-t border-white/30 text-sm font-bold uppercase tracking-wider text-[#0a66c2]">
+          <button className="hover:underline cursor-pointer">Start Analysis</button>
         </div>
       </div>
     </div>
