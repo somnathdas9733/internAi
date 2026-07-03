@@ -322,7 +322,7 @@ app.post("/api/ai/resume-internships", async (req, res) => {
     const textLower = resumeText.toLowerCase();
     let isFrontend = textLower.includes("react") || textLower.includes("html") || textLower.includes("css") || textLower.includes("frontend");
     let isAi = textLower.includes("ai") || textLower.includes("python") || textLower.includes("ml") || textLower.includes("machine");
-    
+
     let recs = [
       {
         roleTitle: isFrontend ? "Frontend Development Intern" : "Software Engineering Intern",
@@ -413,7 +413,7 @@ app.post("/api/ai/resume-analysis", async (req, res) => {
     const textLower = resumeText.toLowerCase();
     const isFrontend = textLower.includes("react") || textLower.includes("html") || textLower.includes("css") || textLower.includes("frontend");
     const isAi = textLower.includes("ai") || textLower.includes("python") || textLower.includes("ml") || textLower.includes("machine");
-    
+
     let score = 78;
     let summary = "Strong background in standard modern web development. Shows good internship and personal project practice, but could make accomplishments significantly more metric-driven and highlight modern bundler/ecosystem depth.";
     let vibe = "Modern Product & Client Focus";
@@ -586,7 +586,7 @@ async function startServer() {
   });
 }
 
-if (!process.env.FIREBASE_CONFIG && !process.env.FUNCTIONS_EMULATOR) {
+if (!process.env.FIREBASE_CONFIG && !process.env.FUNCTIONS_EMULATOR && !process.env.VERCEL) {
   startServer();
 }
 

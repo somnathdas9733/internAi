@@ -553,7 +553,7 @@ async function startServer() {
     console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV || "development"} mode.`);
   });
 }
-if (!process.env.FIREBASE_CONFIG && !process.env.FUNCTIONS_EMULATOR) {
+if (!process.env.FIREBASE_CONFIG && !process.env.FUNCTIONS_EMULATOR && !process.env.VERCEL) {
   startServer();
 }
 // Annotate the CommonJS export names for ESM import in node:
